@@ -2,6 +2,7 @@ package com.evaluacion.tvmaze.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -22,6 +23,13 @@ public class GlobalExceptionHandler {
     public ProblemDetail handleTvMazeUnavailable(TvMazeUnavailableException ex) {
         log.error(ex.getMessage(), ex);
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, ex.getMessage());
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ProblemDetail handleDataAccess(DataAccessException ex) {
+        log.error("Error al acceder a MongoDB", ex);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+                "La base de datos no está disponible");
     }
 
     @ExceptionHandler(ShowNotFoundException.class)

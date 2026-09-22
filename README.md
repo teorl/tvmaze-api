@@ -111,6 +111,15 @@ curl "http://localhost:8080/api/shows/139"
 
 Devuelve el objeto show completo tal como lo entrega TV Maze (`GET https://api.tvmaze.com/shows/{id}`), sin omitir ningún campo.
 
+Los shows se guardan en caché en la colección `shows` de MongoDB (con `_id` = `showId`):
+la primera consulta va a TV Maze y guarda el resultado; las siguientes se responden desde Mongo.
+
+En consola, cada *cache miss* se registra con nivel INFO. Para ver también los *cache hit* (nivel DEBUG):
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments=--logging.level.com.evaluacion.tvmaze.service=DEBUG
+```
+
 ### Errores
 
 Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-editor.org/rfc/rfc7807):
@@ -121,6 +130,7 @@ Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-e
 | 400 | `showId` no es un número entero positivo |
 | 404 | TV Maze no tiene un show con ese `showId` |
 | 502 | TV Maze no respondió o respondió con error |
+| 503 | MongoDB no está disponible |
 
 ## Estructura
 
@@ -130,6 +140,8 @@ service/     Lógica de negocio
 client/      Consumo del API de TV Maze
 mapper/      Conversión de respuestas de TV Maze a DTOs propios
 dto/         Objetos de respuesta
+document/    Documentos de MongoDB
+repository/  Repositorios de Spring Data MongoDB
 exception/   Excepciones y manejo global de errores
-config/      Configuración (RestClient, propiedades)
+config/      Configuración (RestClient, reloj, propiedades)
 ```
