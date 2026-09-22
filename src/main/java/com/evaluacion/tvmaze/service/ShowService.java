@@ -7,6 +7,7 @@ import com.evaluacion.tvmaze.mapper.ShowMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -26,5 +27,9 @@ public class ShowService {
                 .filter(Objects::nonNull)
                 .map(showMapper::toSummary)
                 .toList();
+    }
+
+    public Map<String, Object> getShow(long showId) {
+        return tvMazeClient.getShow(showId);
     }
 }

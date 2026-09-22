@@ -47,6 +47,16 @@ Respuesta:
 
 `channel` toma el nombre de `network` y, si el show no tiene cadena de TV, el de `webChannel`.
 
+### B. Show por ID
+
+`GET /api/shows/{showId}`
+
+```bash
+curl "http://localhost:8080/api/shows/139"
+```
+
+Devuelve el objeto show completo tal como lo entrega TV Maze (`GET https://api.tvmaze.com/shows/{id}`), sin omitir ningún campo.
+
 ### Errores
 
 Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-editor.org/rfc/rfc7807):
@@ -54,6 +64,8 @@ Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-e
 | Código | Caso |
 |--------|------|
 | 400 | Falta el parámetro `q` o está vacío |
+| 400 | `showId` no es un número entero positivo |
+| 404 | TV Maze no tiene un show con ese `showId` |
 | 502 | TV Maze no respondió o respondió con error |
 
 ## Estructura
