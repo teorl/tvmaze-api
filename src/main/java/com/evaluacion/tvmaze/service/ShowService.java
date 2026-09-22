@@ -15,6 +15,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Casos de uso de consulta de shows: búsqueda y detalle, ambos con sus comentarios.
+ */
 @Service
 public class ShowService {
 

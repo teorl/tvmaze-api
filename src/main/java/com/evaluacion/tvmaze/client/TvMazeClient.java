@@ -32,6 +32,11 @@ public class TvMazeClient {
         this.restClient = tvMazeRestClient;
     }
 
+    /**
+     * Busca shows por nombre; devuelve una lista vacía si no hay resultados.
+     *
+     * @throws TvMazeUnavailableException si TV Maze no responde o responde con error
+     */
     public List<TvMazeSearchResult> searchShows(String query) {
         try {
             List<TvMazeSearchResult> results = restClient.get()
@@ -50,7 +55,8 @@ public class TvMazeClient {
     /**
      * Obtiene el show completo tal como lo devuelve TV Maze, sin descartar ningún campo.
      *
-     * @throws ShowNotFoundException si TV Maze responde 404
+     * @throws ShowNotFoundException      si TV Maze responde 404
+     * @throws TvMazeUnavailableException si TV Maze no responde o responde con otro error
      */
     public Map<String, Object> getShow(long showId) {
         try {

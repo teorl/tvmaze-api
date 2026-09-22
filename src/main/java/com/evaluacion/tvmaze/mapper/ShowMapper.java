@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * Convierte los shows de TV Maze a los DTOs de respuesta de la API.
+ */
 @Component
 public class ShowMapper {
 

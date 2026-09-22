@@ -68,6 +68,16 @@ class ShowCacheServiceTest {
     }
 
     @Test
+    void refetchesShowWhenCachedDocumentHasNoData() {
+        Map<String, Object> show = Map.of("id", 139, "name", "Girls");
+        when(cachedShowRepository.findById(139L)).thenReturn(Optional.of(new CachedShow(139L, null, NOW)));
+        when(tvMazeClient.getShow(139)).thenReturn(show);
+
+        assertThat(showCacheService.getShow(139)).isEqualTo(show);
+        verify(cachedShowRepository).save(new CachedShow(139L, show, NOW));
+    }
+
+    @Test
     void doesNotCacheWhenShowDoesNotExist() {
         when(cachedShowRepository.findById(999L)).thenReturn(Optional.empty());
         when(tvMazeClient.getShow(999)).thenThrow(new ShowNotFoundException(999));

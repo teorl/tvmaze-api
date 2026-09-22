@@ -16,6 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Registro y consulta de los comentarios de los shows.
+ */
 @Service
 public class CommentService {
 

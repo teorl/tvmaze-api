@@ -36,7 +36,9 @@ public class ShowCacheService {
      * @throws com.evaluacion.tvmaze.exception.ShowNotFoundException si el show no existe en TV Maze
      */
     public Map<String, Object> getShow(long showId) {
-        Optional<CachedShow> cached = cachedShowRepository.findById(showId);
+        // Un documento sin data (p. ej. editado a mano) se trata como ausente y se vuelve a guardar.
+        Optional<CachedShow> cached = cachedShowRepository.findById(showId)
+                .filter(cachedShow -> cachedShow.data() != null);
         if (cached.isPresent()) {
             log.debug("Cache hit del show {}", showId);
             return cached.get().data();

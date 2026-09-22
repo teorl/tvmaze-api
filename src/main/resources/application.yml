@@ -16,5 +16,12 @@ spring:
 server:
   port: 8080
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  # Las respuestas de error se documentan en cada endpoint; sin esto springdoc agregaría
+  # a todos los endpoints todas las respuestas de GlobalExceptionHandler (p. ej. 404 en la búsqueda).
+  override-with-generic-response: false
+
 tvmaze:
   base-url: https://api.tvmaze.com

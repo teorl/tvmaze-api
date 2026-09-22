@@ -7,6 +7,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Acceso a la colección {@code comments}.
+ */
 public interface ShowCommentRepository extends MongoRepository<ShowComment, String> {
 
     /**

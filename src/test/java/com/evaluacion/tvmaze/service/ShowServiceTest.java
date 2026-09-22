@@ -50,14 +50,14 @@ class ShowServiceTest {
     void searchAddsCommentsToEachShowUsingASingleQuery() {
         TvMazeShow girls = new TvMazeShow(139L, "Girls", "<p>Resumen</p>", List.of("Drama", "Romance"),
                 new TvMazeChannel(8L, "HBO"), null);
-        TvMazeShow girlsFive = new TvMazeShow(41734L, "Girls5eva", null, List.of("Comedy"),
-                null, new TvMazeChannel(3L, "Netflix"));
+        TvMazeShow gilmoreGirls = new TvMazeShow(525L, "Gilmore Girls", null, List.of("Comedy"),
+                null, new TvMazeChannel(3L, "The CW"));
         when(tvMazeClient.searchShows("girls")).thenReturn(List.of(
                 new TvMazeSearchResult(0.9, girls),
-                new TvMazeSearchResult(0.8, girlsFive)));
+                new TvMazeSearchResult(0.8, gilmoreGirls)));
         List<CommentResponse> girlsComments = List.of(new CommentResponse("Muy buena", 4),
                 new CommentResponse("Regular", 2));
-        when(commentService.findCommentsByShowIds(Set.of(139L, 41734L)))
+        when(commentService.findCommentsByShowIds(Set.of(139L, 525L)))
                 .thenReturn(Map.of(139L, girlsComments));
 
         List<ShowSummaryResponse> results = showService.searchShows("  girls ");
@@ -67,7 +67,7 @@ class ShowServiceTest {
         assertThat(results).containsExactly(
                 new ShowSummaryResponse(139L, "Girls", "HBO", "<p>Resumen</p>", List.of("Drama", "Romance"),
                         girlsComments),
-                new ShowSummaryResponse(41734L, "Girls5eva", "Netflix", null, List.of("Comedy"), List.of()));
+                new ShowSummaryResponse(525L, "Gilmore Girls", "The CW", null, List.of("Comedy"), List.of()));
     }
 
     @Test
