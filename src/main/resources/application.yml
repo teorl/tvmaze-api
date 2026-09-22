@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: tvmaze-api
+
+server:
+  port: 8080
+
+tvmaze:
+  base-url: https://api.tvmaze.com
