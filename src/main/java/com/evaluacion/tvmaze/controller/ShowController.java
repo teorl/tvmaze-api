@@ -27,7 +27,7 @@ public class ShowController {
      * Busca shows por nombre. Ejemplo: {@code GET /api/shows/search?q=girls}
      */
     @GetMapping("/search")
-    public List<ShowSummaryResponse> search(@RequestParam("q") @NotBlank String searchQuery) {
+    public List<ShowSummaryResponse> search(@RequestParam("q") @NotBlank(message = "no puede estar vacío") String searchQuery) {
         return showService.searchShows(searchQuery);
     }
 
@@ -35,7 +35,7 @@ public class ShowController {
      * Devuelve el show completo de TV Maze. Ejemplo: {@code GET /api/shows/139}
      */
     @GetMapping("/{showId}")
-    public Map<String, Object> getShow(@PathVariable @Positive long showId) {
+    public Map<String, Object> getShow(@PathVariable @Positive(message = "debe ser un número positivo") long showId) {
         return showService.getShow(showId);
     }
 }

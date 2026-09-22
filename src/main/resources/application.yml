@@ -6,6 +6,12 @@ spring:
       # La cadena de conexión se toma de la variable de entorno; nunca se versiona.
       uri: ${MONGODB_URI}
       database: tvmaze
+      # Crea los índices declarados con @Indexed (p. ej. comments.showId) al iniciar.
+      auto-index-creation: true
+  jackson:
+    deserialization:
+      # Rechaza decimales en campos enteros (p. ej. "rating": 4.5) en lugar de truncarlos.
+      accept-float-as-int: false
 
 server:
   port: 8080

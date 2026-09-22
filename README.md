@@ -77,12 +77,19 @@ Las pruebas unitarias no necesitan conexión a MongoDB.
 
 ## Endpoints
 
+Cada ejemplo se muestra para bash (macOS/Linux, Git Bash) y para PowerShell. En PowerShell se usa `curl.exe`
+porque `curl` puede ser un alias de `Invoke-WebRequest`.
+
 ### A. Búsqueda de shows
 
 `GET /api/shows/search?q={search_query}`
 
 ```bash
 curl "http://localhost:8080/api/shows/search?q=girls"
+```
+
+```powershell
+curl.exe "http://localhost:8080/api/shows/search?q=girls"
 ```
 
 Respuesta:
@@ -109,6 +116,10 @@ Respuesta:
 curl "http://localhost:8080/api/shows/139"
 ```
 
+```powershell
+curl.exe "http://localhost:8080/api/shows/139"
+```
+
 Devuelve el objeto show completo tal como lo entrega TV Maze (`GET https://api.tvmaze.com/shows/{id}`), sin omitir ningún campo.
 
 Los shows se guardan en caché en la colección `shows` de MongoDB (con `_id` = `showId`):
@@ -120,14 +131,72 @@ En consola, cada *cache miss* se registra con nivel INFO. Para ver también los 
 mvn spring-boot:run -Dspring-boot.run.arguments=--logging.level.com.evaluacion.tvmaze.service=DEBUG
 ```
 
+```powershell
+mvn spring-boot:run "-Dspring-boot.run.arguments=--logging.level.com.evaluacion.tvmaze.service=DEBUG"
+```
+
+### C. Comentarios de un show
+
+`POST /api/shows/{showId}/comments`
+
+```bash
+curl -X POST "http://localhost:8080/api/shows/139/comments" \
+  -H "Content-Type: application/json" \
+  -d '{ "comment": "Muy buena serie", "rating": 4 }'
+```
+
+```powershell
+$body = @{ comment = "Muy buena serie"; rating = 4 } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/shows/139/comments" `
+  -ContentType "application/json; charset=utf-8" -Body $body
+```
+
+> Con `Invoke-RestMethod` no hay que escapar comillas: el JSON se genera con `ConvertTo-Json`, así que funciona igual
+> en Windows PowerShell 5.1 y en PowerShell 7.
+
+| Campo | Regla |
+|-------|-------|
+| `comment` | Obligatorio, no vacío, máximo 500 caracteres |
+| `rating` | Entero obligatorio entre 0 y 5 |
+
+Respuesta `201 Created`:
+
+```json
+{
+  "status": "success",
+  "message": "Comentario guardado",
+  "id": "66f0c2a1e4b0a1b2c3d4e5f6"
+}
+```
+
+Antes de guardar se verifica que el show exista (usando el caché de shows). Los comentarios se guardan en la
+colección `comments` con `id`, `showId`, `comment`, `rating` y `createdAt`, con un índice sobre `showId`.
+El índice se crea al iniciar la aplicación, por lo que MongoDB debe estar disponible al arrancar.
+
 ### Errores
 
-Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-editor.org/rfc/rfc7807):
+Los errores se devuelven en formato [ProblemDetail (RFC 7807)](https://www.rfc-editor.org/rfc/rfc7807).
+Los errores de validación incluyen el detalle por campo en `errors`:
+
+```json
+{
+  "type": "about:blank",
+  "title": "Bad Request",
+  "status": 400,
+  "detail": "La petición contiene campos inválidos",
+  "instance": "/api/shows/139/comments",
+  "errors": {
+    "comment": "es obligatorio y no puede estar vacío",
+    "rating": "debe ser menor o igual a 5"
+  }
+}
+```
 
 | Código | Caso |
 |--------|------|
 | 400 | Falta el parámetro `q` o está vacío |
 | 400 | `showId` no es un número entero positivo |
+| 400 | El cuerpo del comentario no es JSON válido o no cumple las validaciones |
 | 404 | TV Maze no tiene un show con ese `showId` |
 | 502 | TV Maze no respondió o respondió con error |
 | 503 | MongoDB no está disponible |
