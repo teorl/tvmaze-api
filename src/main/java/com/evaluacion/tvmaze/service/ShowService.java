@@ -8,6 +8,7 @@ import com.evaluacion.tvmaze.dto.ShowSummaryResponse;
 import com.evaluacion.tvmaze.mapper.ShowMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +17,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ShowService {
+
+    private static final String COMMENTS_FIELD = "comments";
 
     private final TvMazeClient tvMazeClient;
     private final ShowCacheService showCacheService;
@@ -50,8 +53,14 @@ public class ShowService {
                 .toList();
     }
 
+    /**
+     * Devuelve el show completo de TV Maze (desde el caché si ya está guardado) con un arreglo {@code comments}.
+     * Los comentarios se agregan sobre una copia, de modo que el caché conserva solo los datos de TV Maze.
+     */
     public Map<String, Object> getShow(long showId) {
-        return showCacheService.getShow(showId);
+        Map<String, Object> show = new LinkedHashMap<>(showCacheService.getShow(showId));
+        show.put(COMMENTS_FIELD, commentService.findCommentsByShowId(showId));
+        return show;
     }
 
     private static List<CommentResponse> commentsOf(TvMazeShow show,

@@ -126,10 +126,28 @@ curl "http://localhost:8080/api/shows/139"
 curl.exe "http://localhost:8080/api/shows/139"
 ```
 
-Devuelve el objeto show completo tal como lo entrega TV Maze (`GET https://api.tvmaze.com/shows/{id}`), sin omitir ningún campo.
+Devuelve el objeto show completo tal como lo entrega TV Maze (`GET https://api.tvmaze.com/shows/{id}`), sin omitir ningún campo,
+más un arreglo `comments` con los comentarios guardados del show (vacío si no tiene):
+
+```json
+{
+  "id": 139,
+  "url": "https://www.tvmaze.com/shows/139/girls",
+  "name": "Girls",
+  "type": "Scripted",
+  "language": "English",
+  "genres": ["Drama", "Romance"],
+  "...": "resto de los campos de TV Maze",
+  "comments": [
+    { "comment": "Muy buena serie", "rating": 4 }
+  ]
+}
+```
 
 Los shows se guardan en caché en la colección `shows` de MongoDB (con `_id` = `showId`):
 la primera consulta va a TV Maze y guarda el resultado; las siguientes se responden desde Mongo.
+El caché guarda solo los datos de TV Maze; los comentarios se consultan en cada petición, así que
+siempre están actualizados aunque el show venga del caché.
 
 En consola, cada *cache miss* se registra con nivel INFO. Para ver también los *cache hit* (nivel DEBUG):
 

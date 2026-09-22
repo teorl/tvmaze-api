@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +49,13 @@ public class CommentService {
         ShowComment comment = new ShowComment(null, showId, request.comment().strip(), request.rating(),
                 Instant.now(clock));
         return showCommentRepository.save(comment).id();
+    }
+
+    /**
+     * Obtiene los comentarios de un show; lista vacía si no tiene.
+     */
+    public List<CommentResponse> findCommentsByShowId(long showId) {
+        return findCommentsByShowIds(Set.of(showId)).getOrDefault(showId, List.of());
     }
 
     /**

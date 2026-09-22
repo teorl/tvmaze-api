@@ -85,6 +85,22 @@ class CommentServiceTest {
     }
 
     @Test
+    void findsCommentsOfASingleShow() {
+        when(showCommentRepository.findByShowIdIn(Set.of(139L), Sort.by("createdAt")))
+                .thenReturn(List.of(new ShowComment("a", 139L, "Muy buena", 4, NOW)));
+
+        assertThat(commentService.findCommentsByShowId(139))
+                .containsExactly(new CommentResponse("Muy buena", 4));
+    }
+
+    @Test
+    void returnsEmptyListWhenShowHasNoComments() {
+        when(showCommentRepository.findByShowIdIn(Set.of(139L), Sort.by("createdAt"))).thenReturn(List.of());
+
+        assertThat(commentService.findCommentsByShowId(139)).isEmpty();
+    }
+
+    @Test
     void doesNotQueryMongoWhenThereAreNoShowIds() {
         assertThat(commentService.findCommentsByShowIds(Set.of())).isEmpty();
         verifyNoInteractions(showCommentRepository);

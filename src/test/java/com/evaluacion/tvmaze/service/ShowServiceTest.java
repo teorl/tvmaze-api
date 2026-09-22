@@ -6,6 +6,7 @@ import com.evaluacion.tvmaze.client.dto.TvMazeSearchResult;
 import com.evaluacion.tvmaze.client.dto.TvMazeShow;
 import com.evaluacion.tvmaze.dto.CommentResponse;
 import com.evaluacion.tvmaze.dto.ShowSummaryResponse;
+import com.evaluacion.tvmaze.exception.ShowNotFoundException;
 import com.evaluacion.tvmaze.mapper.ShowMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +14,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -88,10 +92,45 @@ class ShowServiceTest {
     }
 
     @Test
-    void getShowReturnsShowFromCacheService() {
-        Map<String, Object> show = Map.of("id", 139, "name", "Girls");
-        when(showCacheService.getShow(139)).thenReturn(show);
+    void getShowAddsCommentsToTheShow() {
+        Map<String, Object> cachedShow = Map.of("id", 139, "name", "Girls");
+        List<CommentResponse> comments = List.of(new CommentResponse("Muy buena", 4));
+        when(showCacheService.getShow(139)).thenReturn(cachedShow);
+        when(commentService.findCommentsByShowId(139)).thenReturn(comments);
 
-        assertThat(showService.getShow(139)).isEqualTo(show);
+        Map<String, Object> result = showService.getShow(139);
+
+        assertThat(result)
+                .containsEntry("id", 139)
+                .containsEntry("name", "Girls")
+                .containsEntry("comments", comments);
+    }
+
+    @Test
+    void getShowReturnsEmptyCommentsWhenShowHasNone() {
+        when(showCacheService.getShow(139)).thenReturn(Map.of("id", 139));
+        when(commentService.findCommentsByShowId(139)).thenReturn(List.of());
+
+        assertThat(showService.getShow(139)).containsEntry("comments", List.of());
+    }
+
+    @Test
+    void getShowDoesNotModifyTheCachedShow() {
+        Map<String, Object> cachedShow = new HashMap<>(Map.of("id", 139, "name", "Girls"));
+        when(showCacheService.getShow(139)).thenReturn(cachedShow);
+        when(commentService.findCommentsByShowId(139)).thenReturn(List.of(new CommentResponse("Muy buena", 4)));
+
+        showService.getShow(139);
+
+        assertThat(cachedShow).doesNotContainKey("comments");
+    }
+
+    @Test
+    void getShowDoesNotLoadCommentsWhenShowDoesNotExist() {
+        when(showCacheService.getShow(999)).thenThrow(new ShowNotFoundException(999));
+
+        assertThatThrownBy(() -> showService.getShow(999))
+                .isInstanceOf(ShowNotFoundException.class);
+        verifyNoInteractions(commentService);
     }
 }
