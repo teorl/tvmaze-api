@@ -101,12 +101,18 @@ Respuesta:
     "name": "Girls",
     "channel": "HBO",
     "summary": "<p>This Emmy winning series is a comic look at...</p>",
-    "genres": ["Drama", "Romance"]
+    "genres": ["Drama", "Romance"],
+    "comments": [
+      { "comment": "Muy buena serie", "rating": 4 }
+    ]
   }
 ]
 ```
 
 `channel` toma el nombre de `network` y, si el show no tiene cadena de TV, el de `webChannel`.
+
+`comments` contiene los comentarios guardados de cada show, del más antiguo al más reciente, o un arreglo vacío
+si no tiene. Los comentarios de todos los shows del resultado se obtienen con una sola consulta a MongoDB.
 
 ### B. Show por ID
 
